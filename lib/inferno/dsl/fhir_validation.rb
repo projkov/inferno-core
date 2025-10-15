@@ -46,8 +46,8 @@ module Inferno
         self.class.find_validator(validator_name, suite_options)
       end
 
-      def get_validator_version(validator: :default)
-        find_validator(validator).validator_version
+      def version(validator: :default)
+        find_validator(validator).version
       end
 
       class Validator
@@ -245,6 +245,26 @@ module Inferno
                 'Validator response was an unexpected format. ' \
                 'Review Messages tab or validator service logs for more information.'
         end
+
+        def version
+          begin
+            response = Faraday.new(url).get('version')
+          rescue StandardError
+            raise Inferno::Exceptions::ErrorInValidatorException, "Unable to connect to validator at #{url}."
+          end
+
+          unless response.status == 200
+            raise Inferno::Exceptions::ErrorInValidatorException,
+                  'Error occurred in the validator. Review Messages tab or validator service logs for more information.'
+          end
+
+          JSON.parse(response.body)
+        rescue Inferno::Exceptions::ErrorInValidatorException
+          raise
+        rescue StandardError
+          raise Inferno::Exceptions::ErrorInValidatorException,
+                'Error occurred in the validator. Review Messages tab or validator service logs for more information.'
+        end
       end
 
       module ClassMethods
@@ -308,28 +328,6 @@ module Inferno
           validator
         end
 
-        def validator_version
-          begin
-            response = Faraday.new(url).get('version')
-          rescue StandardError => e
-            runnable.add_message('error', e.message)
-            raise Inferno::Exceptions::ErrorInValidatorException, "Unable to connect to validator at #{url}."
-          end
-
-          unless response.status == 200
-            raise Inferno::Exceptions::ErrorInValidatorException,
-                  'Error occurred in the validator. Review Messages tab or validator service logs for more information.'
-          end
-
-          response.to_hash
-
-        rescue Inferno::Exceptions::ErrorInValidatorException
-          raise
-        rescue StandardError => e
-          runnable.add_message('error', e.message)
-          raise Inferno::Exceptions::ErrorInValidatorException,
-                'Error occurred in the validator. Review Messages tab or validator service logs for more information.'
-        end
       end
     end
   end

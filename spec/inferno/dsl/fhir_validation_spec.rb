@@ -252,4 +252,25 @@ RSpec.describe Inferno::DSL::FHIRValidation do
       expect(v2_validator.url).to eq('https://example.com/v2_validator')
     end
   end
+
+  describe '#get_validator_version' do
+    before do
+      response_body = {
+        validatorWrapperVersion: '1.0.70',
+        validatorVersion: '6.6.5'
+      }.to_json
+      stub_request(:get, "#{validation_url}/version")
+        .to_return(status: 200, body: response_body)
+    end
+
+    context 'when the validator is up' do
+      it 'returns the version' do
+        expected_result = {
+          'validatorWrapperVersion' => '1.0.70',
+          'validatorVersion' => '6.6.5'
+        }
+        expect(validator.version).to eq(expected_result)
+      end
+    end
+  end
 end
