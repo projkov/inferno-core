@@ -190,14 +190,14 @@ describe('Input Components', () => {
     } as TestInput);
 
 
-    const constructInputsMap = (inputs: TestInput[]): Map<string, string> => {
+    const constructInputsMap = (inputs: TestInput[]): Map<string, unknown> => {
       return inputs.reduce((acc, input) => {
-        acc.set(input.name, input.value as string);
+        acc.set(input.name, input.value);
         return acc;
-      }, new Map<string, string>());
+      }, new Map<string, unknown>());
     };
 
-    const renderInputFields = (inputs: TestInput[], inputsMap: Map<string, string>) => {
+    const renderInputFields = (inputs: TestInput[], inputsMap: Map<string, unknown>) => {
       render(
         <ThemeProvider>
           <SnackbarProvider>
@@ -237,15 +237,8 @@ describe('Input Components', () => {
           enable_when: { input_name: 'trigger', value: enableWhenValue },
         }),
       ];
-      const inputsMap = new Map<string, unknown>();
-      inputsMap.set('trigger', refValue);
-      render(
-        <ThemeProvider>
-          <SnackbarProvider>
-            <InputFields inputs={inputs} inputsMap={inputsMap} setInputsMap={() => {}} />
-          </SnackbarProvider>
-        </ThemeProvider>,
-      );
+      const inputsMap = new Map<string, unknown>([['trigger', refValue]]);
+      renderInputFields(inputs, inputsMap);
 
       expect(screen.getByRole('checkbox', { name: /Trigger/i })).toBeInTheDocument();
       if (expectedVisible) {
