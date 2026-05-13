@@ -200,12 +200,14 @@ export const normalizeValue = (value: unknown): string => {
 };
 
 /**
- * Returns true if the input field should be displayed based on its `enable_when`
- * condition and the values in inputsMap.
- * - No `enable_when` → always show.
- * - Referenced input missing or no `input_name` → hide.
- * - When `enable_when.value` is a string: show when referenced value equals it.
- * - When `enable_when.value` is string[]: show when referenced value equals any element.
+ * Returns whether the input should be shown from its `enable_when` rule and `inputsMap`.
+ *
+ * - No `enable_when`, or no `input_name` on it → always show (rule ignored).
+ * - With `input_name`: hide when the referenced key is absent from `inputsMap` (`undefined`).
+ * - Otherwise show when {@link normalizeValue} of the referenced value equals
+ *   {@link normalizeValue} of `enable_when.value` (same string/number/boolean handling;
+ *   objects and arrays compared via `JSON.stringify`, so e.g. checkbox `string[]` in the map
+ *   matches an `enable_when.value` string that is the same JSON array encoding).
  */
 export const conditionalShowInput = (
   input: TestInput,
