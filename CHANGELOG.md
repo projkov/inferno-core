@@ -1,3 +1,31 @@
+## 1.2.2
+* Bunp dependency versions by @FlexonyoPizza in https://github.com/inferno-framework/inferno-core/pull/778
+
+## 1.2.1
+* ID-45: session compare - sort based on normalized messages (fix) by @karlnaden in https://github.com/inferno-framework/inferno-core/pull/775
+
+## 1.2.0
+* ID-97: allow a result_message to be provided on resume routes by @karlnaden in https://github.com/inferno-framework/inferno-core/pull/773
+* Fix must support navigation for Bundle entry type slice sub-elements by @abhinandan2012 in https://github.com/inferno-framework/inferno-core/pull/770
+* ID-45: Session CLI and Scripted Execution by @karlnaden in https://github.com/inferno-framework/inferno-core/pull/760
+
+## 1.1.2
+* Add simulation verification flag to groups by @ljtucker in https://github.com/inferno-framework/inferno-core/pull/768
+
+## 1.1.1
+* ID-64: Add PUT request method to HTTP client DSL by @abhinandan2012 in https://github.com/inferno-framework/inferno-core/pull/761
+* ID-84: Add "no error messages" assertion by @karlnaden in https://github.com/inferno-framework/inferno-core/pull/764
+* ID-75: Created Simulation Verification flag for test cards by @ljtucker in https://github.com/inferno-framework/inferno-core/pull/763
+* ID-93: add parsed_json_if_valid convience assertion method by @karlnaden in https://github.com/inferno-framework/inferno-core/pull/765
+* ID-94: Support Logical Model Validation by @karlnaden in https://github.com/inferno-framework/inferno-core/pull/766
+
+## 1.1.0
+* Filter messages for resource references to match validation of base-l… by @ljtucker in https://github.com/inferno-framework/inferno-core/pull/753
+
+## 1.0.8
+* Add path to matching_type_slice by @yunwwang in https://github.com/inferno-framework/inferno-core/pull/757
+* ID-2 Handle Bundle entries missing resource safely by @abhinandan2012 in https://github.com/inferno-framework/inferno-core/pull/756
+
 ## 1.0.7
 * ID-20: Add new format for known URL Unresolved Message to suppression list by @ljtucker in https://github.com/inferno-framework/inferno-core/pull/752
 

@@ -120,6 +120,12 @@ module Inferno
       end
     end
 
+    class UnknownPreset < RuntimeError
+      def initialize(preset_id, suite_id)
+        super("Preset '#{preset_id}' not found for suite '#{suite_id}'")
+      end
+    end
+
     class InvalidRunnableIdException < StandardError
       def initialize(id)
         super("ID '#{id}' exceeds the maximum id length of 255 characters")
@@ -135,6 +141,13 @@ module Inferno
     class RunnableChildNotFoundException < StandardError
       def initialize(id, runnable)
         super("Could not find a child with an ID ending in '#{id}' for '#{runnable}'.")
+      end
+    end
+
+    class TestSuiteImplementationException < StandardError
+      def initialize(feature, details)
+        super("This test suite incorrectly used the #{feature}. " \
+              "Contact the developer with the following details: #{details}")
       end
     end
   end

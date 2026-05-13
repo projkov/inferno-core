@@ -229,31 +229,51 @@ module DemoIG_STU1 # rubocop:disable Naming/ClassAndModuleCamelCase
         title 'Wait test'
         receives_request :resume
 
+        output :wait_test_url
+        output :wait_test_fail_url
+        output :wait_test_skip_url
+        output :wait_test_omit_url
+        output :wait_test_cancel_url
+
         run do
+          identifier = 'abc'
+          url_suffix = "?xyz=#{identifier}"
+          wait_test_url = "#{config.options[:wait_test_url]}#{url_suffix}"
+          wait_test_fail_url = "#{config.options[:wait_test_fail_url]}#{url_suffix}&message=User%20clicked%20fail"
+          wait_test_skip_url = "#{config.options[:wait_test_skip_url]}#{url_suffix}"
+          wait_test_omit_url = "#{config.options[:wait_test_omit_url]}#{url_suffix}"
+          wait_test_cancel_url = "#{config.options[:wait_test_cancel_url]}#{url_suffix}"
+
+          output(wait_test_url:)
+          output(wait_test_fail_url:)
+          output(wait_test_skip_url:)
+          output(wait_test_omit_url:)
+          output(wait_test_cancel_url:)
+
           wait(
-            identifier: 'abc',
+            identifier:,
             message: %(
-              [Follow this link to pass the test and proceed](#{config.options[:wait_test_url]}?xyz=abc).
+              [Follow this link to pass the test and proceed](#{wait_test_url}).
 
-              [Follow this link to fail the test and proceed](#{config.options[:wait_test_fail_url]}?xyz=abc).
+              [Follow this link to fail the test and proceed](#{wait_test_fail_url}).
 
-              [Follow this link to skip the test and proceed](#{config.options[:wait_test_skip_url]}?xyz=abc).
+              [Follow this link to skip the test and proceed](#{wait_test_skip_url}).
 
-              [Follow this link to omit the test and proceed](#{config.options[:wait_test_omit_url]}?xyz=abc).
+              [Follow this link to omit the test and proceed](#{wait_test_omit_url}).
 
-              [Follow this link to cancel the test and proceed](#{config.options[:wait_test_cancel_url]}?xyz=abc).
+              [Follow this link to cancel the test and proceed](#{wait_test_cancel_url}).
 
               Waiting to receive a request at one of:
 
-              ```#{config.options[:wait_test_url]}?xyz=abc```,
+              ```#{wait_test_url}```,
 
-              ```#{config.options[:wait_test_fail_url]}?xyz=abc```,
+              ```#{wait_test_fail_url}```,
 
-              ```#{config.options[:wait_test_skip_url]}?xyz=abc```,
+              ```#{wait_test_skip_url}```,
 
-              ```#{config.options[:wait_test_omit_url]}?xyz=abc```,
+              ```#{wait_test_omit_url}```,
 
-              ```#{config.options[:wait_test_cancel_url]}?xyz=abc```.
+              ```#{wait_test_cancel_url}```.
             )
           )
         end
@@ -414,6 +434,123 @@ module DemoIG_STU1 # rubocop:disable Naming/ClassAndModuleCamelCase
         run do
           load_tagged_requests('abc', 'def')
           assert request.present?, 'Tagged request not found'
+        end
+      end
+    end
+
+    group do
+      id 'uncaught_exception_group'
+      title 'Uncaught Exception Group'
+      description 'This group contains a test that raises an uncaught exception, producing an error result.'
+
+      test do
+        title 'Raises an uncaught exception'
+        run { raise 'This is an intentional uncaught exception for testing error handling' }
+      end
+    end
+
+    group do
+      title 'Assertions Group'
+      description %(
+        This group demonstrates some common assertsion.
+      )
+
+      group do
+        title 'parsed_json_if_valid'
+
+        test do
+          title 'Pass on valid json'
+
+          run do
+            parsed = parsed_json_if_valid('{ "valid": "json" }')
+            assert parsed.present?, 'not an error'
+          end
+        end
+
+        test do
+          title 'Log an error on invalid json, but continue'
+
+          run do
+            parsed = parsed_json_if_valid('NOT JSON')
+            assert parsed.present?,
+                   'This will appear because parsed json did not get returned - it was invalid but the test continued'
+          end
+        end
+
+        test do
+          title 'Fail on invalid json and end the test'
+
+          run do
+            parsed = parsed_json_if_valid('NOT JSON', continue: false)
+            assert parsed.present?, 'This error will not show up because continue was set to false'
+          end
+        end
+      end
+
+      group do
+        title 'assert_no_error_messages'
+
+        test do
+          title 'Pass because no error messages'
+
+          run do
+            add_message('warning', 'this is not an error.')
+            assert_no_error_messages('See error messages.')
+          end
+        end
+
+        test do
+          title 'Fail because error messages'
+
+          run do
+            add_message('warning', 'this is not an error.')
+            add_message('error', 'but this is an error.')
+            assert_no_error_messages('See error messages.')
+          end
+        end
+
+        test do
+          title 'Do not skip because no error messages'
+
+          run do
+            add_message('warning', 'this is not an error.')
+            skip_if error_messages?, 'See error messages.'
+          end
+        end
+
+        test do
+          title 'skip because error messages'
+
+          run do
+            add_message('warning', 'this is not an error.')
+            add_message('error', 'but this is an error.')
+            add_message('warning', 'this is not an error.')
+            skip_if error_messages?, 'See error messages.'
+          end
+        end
+      end
+    end
+    group do
+      id 'message_normalization_sort_group'
+      title 'Execute Script Message Normalization Sort Group'
+      description %(
+        This group demonstrates that messages are sorted based on their normalized
+        content when comparing runs within a script execution.
+      )
+
+      test do
+        title 'Messages where normalized sort order differs from raw sort order'
+        input :normalization_sort_url,
+              title: 'Normalization Sort URL',
+              description: 'A URL included in messages. Use http://aaa.example.com for ' \
+                           'expected results and http://zzz.example.com for the comparison ' \
+                           'run to exercise normalization-based sort ordering.',
+              default: 'http://aaa.example.com'
+
+        run do
+          add_message('info', "#{normalization_sort_url}: response received")
+          add_message('info', 'http://middle.example.com: fixed message')
+          pass
         end
       end
     end

@@ -200,6 +200,7 @@ export type Test = Runnable & {
   short_id: string;
   outputs: TestOutput[];
   user_runnable?: boolean;
+  is_simulation_verification?: boolean;
 };
 
 export type TestGroup = Runnable & {
@@ -210,6 +211,7 @@ export type TestGroup = Runnable & {
   tests: Test[];
   run_as_group?: boolean;
   user_runnable?: boolean;
+  is_simulation_verification?: boolean;
   test_count?: number;
   expanded?: boolean;
 };

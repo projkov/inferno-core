@@ -140,6 +140,14 @@ RSpec.describe Inferno::Utils::PresetTemplateGenerator do
         { name: 'url1', _type: 'text', value: nil },
         { name: 'custom_bearer_token', _type: 'text',
           _description: 'This bearer token will be used to identify the incoming request', value: nil },
+        {
+          name: 'normalization_sort_url',
+          _description: 'A URL included in messages. Use http://aaa.example.com for expected results and ' \
+                        'http://zzz.example.com for the comparison run to exercise normalization-based sort ordering.',
+          _title: 'Normalization Sort URL',
+          _type: 'text',
+          value: 'http://aaa.example.com'
+        },
         { name: 'get_type_radio', _type: 'radio', _title: 'How to get Bundle (Radio)',
           _options: { list_options: [
             { value: 'copy_paste', label: 'Paste JSON' },
