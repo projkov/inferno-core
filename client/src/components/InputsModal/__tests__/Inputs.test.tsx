@@ -183,17 +183,12 @@ describe('Input Components', () => {
   });
 
   describe('renders conditional fields correctly', () => {
-    const constructInput = (props: Partial<TestInput>): TestInput => {
-      return {
-        name: props?.name || '',
-        type: (props?.type || 'text') as TestInput['type'],
-        title: props?.title,
-        optional: props?.optional,
-        enable_when: props?.enable_when,
-        hidden: props?.hidden,
-        value: props?.value,
-      };
-    };
+    const constructInput = (props: Partial<TestInput>): TestInput => ({
+      name: '',
+      type: 'text',
+      ...props,
+    } as TestInput);
+
 
     const constructInputsMap = (inputs: TestInput[]): Map<string, string> => {
       return inputs.reduce((acc, input) => {
@@ -226,6 +221,38 @@ describe('Input Components', () => {
           expect(screen.queryByLabelText(label, { exact: false })).not.toBeInTheDocument();
         }
       });
+    };
+
+    const assertDependentVisibilityForCheckboxEnableWhen = (refValue: string[], enableWhenValue: string, expectedVisible: boolean) => {
+      const inputs: TestInput[] = [
+        constructInput({
+          name: 'trigger',
+          title: 'Trigger',
+          type: 'checkbox',
+          value: refValue,
+        }),
+        constructInput({
+          name: 'dependent',
+          title: 'Dependent',
+          enable_when: { input_name: 'trigger', value: enableWhenValue },
+        }),
+      ];
+      const inputsMap = new Map<string, unknown>();
+      inputsMap.set('trigger', refValue);
+      render(
+        <ThemeProvider>
+          <SnackbarProvider>
+            <InputFields inputs={inputs} inputsMap={inputsMap} setInputsMap={() => {}} />
+          </SnackbarProvider>
+        </ThemeProvider>,
+      );
+
+      expect(screen.getByRole('checkbox', { name: /Trigger/i })).toBeInTheDocument();
+      if (expectedVisible) {
+        expect(screen.getByRole('textbox', { name: /Dependent/i })).toBeInTheDocument();
+      } else {
+        expect(screen.queryByRole('textbox', { name: /Dependent/i })).not.toBeInTheDocument();
+      }
     };
 
     it('renders field when it has no enable_when (always visible)', () => {
@@ -290,32 +317,11 @@ describe('Input Components', () => {
     });
 
     it('renders dependent field when controlling value (array) equals enable_when array value', () => {
-      const refValue = ['a', 'b'];
-      const inputs: TestInput[] = [
-        constructInput({
-          name: 'trigger',
-          title: 'Trigger',
-          type: 'checkbox',
-          value: refValue,
-        }),
-        constructInput({
-          name: 'dependent',
-          title: 'Dependent',
-          enable_when: { input_name: 'trigger', value: ['a', 'b'] },
-        }),
-      ];
-      const inputsMap = new Map<string, unknown>();
-      inputsMap.set('trigger', refValue);
-      render(
-        <ThemeProvider>
-          <SnackbarProvider>
-            <InputFields inputs={inputs} inputsMap={inputsMap} setInputsMap={() => {}} />
-          </SnackbarProvider>
-        </ThemeProvider>,
-      );
+      assertDependentVisibilityForCheckboxEnableWhen(['a', 'b'], '["a","b"]', true);
+    });
 
-      expect(screen.getByRole('checkbox', { name: /Trigger/i })).toBeInTheDocument();
-      expect(screen.getByRole('textbox', { name: /Dependent/i })).toBeVisible();
+    it('hides dependent field when controlling value (array) does not match enable_when array value', () => {
+      assertDependentVisibilityForCheckboxEnableWhen(['a', 'b'], '["a","c"]', false);
     });
   });
 });
