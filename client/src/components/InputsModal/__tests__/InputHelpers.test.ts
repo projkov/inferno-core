@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { normalizeValue } from '~/components/InputsModal/InputHelpers';
+import { normalizeValue, conditionalShowInput, showInput } from '~/components/InputsModal/InputHelpers';
+import { TestInput } from '~/models/testSuiteModels';
 
 describe('normalizeValue', () => {
   it('returns empty string for null', () => {
@@ -43,12 +44,74 @@ describe('normalizeValue', () => {
     expect(normalizeValue({ a: 1, b: 'x' })).toBe('{"a":1,"b":"x"}');
   });
 
-  it('JSON-stringifies arrays', () => {
+  it('JSON-stringifies arrays in sorted order', () => {
     expect(normalizeValue([])).toBe('[]');
-    expect(normalizeValue([1, 'a', true])).toBe('[1,"a",true]');
+    expect(normalizeValue(['a', 'b', 'c'])).toBe('["a","b","c"]');
+    expect(normalizeValue(['c', 'b', 'a'])).toBe('["a","b","c"]');
   });
 
   it('returns empty string for function (default case)', () => {
     expect(normalizeValue(() => {})).toBe('');
+  });
+});
+
+const makeInput = (overrides: Partial<TestInput> = {}): TestInput =>
+  ({ name: 'dep', type: 'text', ...overrides }) as TestInput;
+
+describe('conditionalShowInput', () => {
+  it('returns true when enable_when is absent', () => {
+    expect(conditionalShowInput(makeInput(), new Map())).toBe(true);
+  });
+
+  it('returns true when enable_when has no input_name', () => {
+    const input = makeInput({ enable_when: { input_name: '', value: 'x' } });
+    expect(conditionalShowInput(input, new Map())).toBe(true);
+  });
+
+  it('returns false and warns when input_name is not in the map', () => {
+    const input = makeInput({ enable_when: { input_name: 'missing', value: 'x' } });
+    const warned: string[] = [];
+    const originalWarn = console.warn;
+    console.warn = (...args: unknown[]) => warned.push(String(args[0]));
+    const result = conditionalShowInput(input, new Map());
+    console.warn = originalWarn;
+    expect(result).toBe(false);
+    expect(warned[0]).toContain('missing');
+  });
+
+  it('returns false when value does not match', () => {
+    const input = makeInput({ enable_when: { input_name: 'ctrl', value: 'yes' } });
+    expect(conditionalShowInput(input, new Map([['ctrl', 'no']]))).toBe(false);
+  });
+
+  it('returns true when value matches', () => {
+    const input = makeInput({ enable_when: { input_name: 'ctrl', value: 'yes' } });
+    expect(conditionalShowInput(input, new Map([['ctrl', 'yes']]))).toBe(true);
+  });
+
+  it('returns true for checkbox array regardless of selection order', () => {
+    const input = makeInput({ enable_when: { input_name: 'ctrl', value: '["a","b"]' } });
+    expect(conditionalShowInput(input, new Map([['ctrl', ['b', 'a']]]))).toBe(true);
+  });
+});
+
+describe('showInput', () => {
+  it('returns false when hidden is true, even if enable_when matches', () => {
+    const input = makeInput({ hidden: true, enable_when: { input_name: 'ctrl', value: 'yes' } });
+    expect(showInput(input, new Map([['ctrl', 'yes']]))).toBe(false);
+  });
+
+  it('returns true when not hidden and no enable_when', () => {
+    expect(showInput(makeInput(), new Map())).toBe(true);
+  });
+
+  it('returns true when not hidden and enable_when matches', () => {
+    const input = makeInput({ enable_when: { input_name: 'ctrl', value: 'yes' } });
+    expect(showInput(input, new Map([['ctrl', 'yes']]))).toBe(true);
+  });
+
+  it('returns false when not hidden but enable_when does not match', () => {
+    const input = makeInput({ enable_when: { input_name: 'ctrl', value: 'yes' } });
+    expect(showInput(input, new Map([['ctrl', 'no']]))).toBe(false);
   });
 });

@@ -62,11 +62,33 @@ module Inferno
           )
         end
 
+        assert_enable_when_shape!(params)
+
         params
           .compact
           .each { |key, value| send("#{key}=", value) }
 
         self.name = name.to_s if params[:name].present?
+      end
+
+      def assert_enable_when_shape!(params)
+        enable_when = params[:enable_when]
+        return if enable_when.blank?
+        return if enable_when_valid?(enable_when)
+
+        raise Exceptions::InvalidAttributeException.new(
+          :enable_when,
+          self.class,
+          'must be a Hash with a non-empty String :input_name and a String :value'
+        )
+      end
+
+      def enable_when_valid?(enable_when)
+        type_is_hash = enable_when.is_a?(Hash)
+        input_name_string_exists = enable_when[:input_name].is_a?(String) && enable_when[:input_name].present?
+        value_string_exists = enable_when.key?(:value) && enable_when[:value].is_a?(String)
+
+        type_is_hash && input_name_string_exists && value_string_exists
       end
 
       # @private

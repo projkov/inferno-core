@@ -189,7 +189,6 @@ describe('Input Components', () => {
       ...props,
     } as TestInput);
 
-
     const constructInputsMap = (inputs: TestInput[]): Map<string, unknown> => {
       return inputs.reduce((acc, input) => {
         acc.set(input.name, input.value);
@@ -311,6 +310,10 @@ describe('Input Components', () => {
 
     it('renders dependent field when controlling value (array) equals enable_when array value', () => {
       assertDependentVisibilityForCheckboxEnableWhen(['a', 'b'], '["a","b"]', true);
+    });
+
+    it('renders dependent field regardless of checkbox selection order', () => {
+      assertDependentVisibilityForCheckboxEnableWhen(['b', 'a'], '["a","b"]', true);
     });
 
     it('hides dependent field when controlling value (array) does not match enable_when array value', () => {

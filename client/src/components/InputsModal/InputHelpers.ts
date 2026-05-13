@@ -175,7 +175,9 @@ export const isJsonString = (str: unknown) => {
 /**
  * Converts a value to its string representation.
  * - If value is null or undefined, returns an empty string.
- * - Otherwise, returns the string representation of the value.
+ * - Arrays are sorted before JSON-stringifying so that selection order does not
+ *   affect equality (e.g. checkbox values `['b','a']` and `['a','b']` are equal).
+ * - Other objects are JSON-stringified as-is.
  *
  * @param value - The value to normalize.
  * @returns The normalized string value.
@@ -193,6 +195,9 @@ export const normalizeValue = (value: unknown): string => {
     case 'symbol':
       return String(value);
     case 'object':
+      if (Array.isArray(value)) {
+        return JSON.stringify([...value].sort());
+      }
       return JSON.stringify(value);
     default:
       return '';
@@ -204,10 +209,10 @@ export const normalizeValue = (value: unknown): string => {
  *
  * - No `enable_when`, or no `input_name` on it → always show (rule ignored).
  * - With `input_name`: hide when the referenced key is absent from `inputsMap` (`undefined`).
+ *   A console warning is emitted in this case to help catch authoring mistakes (e.g. typos).
  * - Otherwise show when {@link normalizeValue} of the referenced value equals
- *   {@link normalizeValue} of `enable_when.value` (same string/number/boolean handling;
- *   objects and arrays compared via `JSON.stringify`, so e.g. checkbox `string[]` in the map
- *   matches an `enable_when.value` string that is the same JSON array encoding).
+ *   {@link normalizeValue} of `enable_when.value` (arrays are sorted before comparison, so
+ *   checkbox selection order does not matter; other objects are compared via JSON.stringify).
  */
 export const conditionalShowInput = (
   input: TestInput,
@@ -219,6 +224,10 @@ export const conditionalShowInput = (
   }
   const inputValue = inputsMap.get(enableWhen.input_name);
   if (inputValue === undefined) {
+    console.warn(
+      `Input "${input.name}" has enable_when referencing "${enableWhen.input_name}", ` +
+        `but that input was not found in the inputs map. The input will be hidden.`,
+    );
     return false;
   }
   return normalizeValue(inputValue) === normalizeValue(enableWhen.value);
