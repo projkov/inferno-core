@@ -200,17 +200,6 @@ export const normalizeValue = (value: unknown): string => {
 };
 
 /**
- * Sorts and normalizes an array of values.
- * - Sorts the array and returns a normalized string representation of each element.
- *
- * @param value - The value to sort and normalize.
- * @returns The sorted and normalized array of strings.
- */
-const sortAndNormalizeArray = (value: unknown[]): string[] => {
-  return value.sort().map((item) => normalizeValue(item));
-};
-
-/**
  * Returns true if the input field should be displayed based on its `enable_when`
  * condition and the values in inputsMap.
  * - No `enable_when` → always show.
