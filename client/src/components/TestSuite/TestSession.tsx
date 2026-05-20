@@ -9,8 +9,6 @@ import {
   TestRun,
   Result,
   TestSession,
-  TestGroup,
-  TestSuite,
   Request,
   TestOutput,
   ViewType,

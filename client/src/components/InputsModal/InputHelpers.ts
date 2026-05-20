@@ -196,7 +196,7 @@ export const normalizeValue = (value: unknown): string => {
       return String(value);
     case 'object':
       if (Array.isArray(value)) {
-        return JSON.stringify([...value].sort());
+        return JSON.stringify([...(value as unknown[])].sort());
       }
       return JSON.stringify(value);
     default:
