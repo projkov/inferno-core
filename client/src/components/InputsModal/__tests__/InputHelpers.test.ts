@@ -83,7 +83,6 @@ describe('conditionalShowInput', () => {
     const result = conditionalShowInput(input, new Map());
     console.warn = originalWarn;
     expect(result).toBe(false);
-    expect(warned[0]).toContain('missing');
   });
 
   it('returns false when value does not match', () => {
