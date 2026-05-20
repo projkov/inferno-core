@@ -138,7 +138,7 @@ const HelpModal: FC<HelpModalProps> = ({ hideModal, modalVisible }) => {
                             updated_at: '',
                             outputs: [],
                             optional: row.optional,
-                          } as Result
+                          }
                         }
                         isRunning={row.pending}
                       />

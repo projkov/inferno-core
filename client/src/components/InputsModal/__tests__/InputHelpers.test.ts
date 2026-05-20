@@ -1,5 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { normalizeValue, conditionalShowInput, showInput } from '~/components/InputsModal/InputHelpers';
+import {
+  normalizeValue,
+  conditionalShowInput,
+  showInput,
+} from '~/components/InputsModal/InputHelpers';
 import { TestInput } from '~/models/testSuiteModels';
 
 describe('normalizeValue', () => {
@@ -55,8 +59,11 @@ describe('normalizeValue', () => {
   });
 });
 
-const makeInput = (overrides: Partial<TestInput> = {}): TestInput =>
-  ({ name: 'dep', type: 'text', ...overrides }) as TestInput;
+const makeInput = (overrides: Partial<TestInput> = {}): TestInput => ({
+  name: 'dep',
+  type: 'text',
+  ...overrides,
+});
 
 describe('conditionalShowInput', () => {
   it('returns true when enable_when is absent', () => {

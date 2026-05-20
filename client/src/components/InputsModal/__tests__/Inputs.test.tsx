@@ -187,7 +187,7 @@ describe('Input Components', () => {
       name: '',
       type: 'text',
       ...props,
-    } as TestInput);
+    });
 
     const constructInputsMap = (inputs: TestInput[]): Map<string, unknown> => {
       return inputs.reduce((acc, input) => {
@@ -222,7 +222,11 @@ describe('Input Components', () => {
       });
     };
 
-    const assertDependentVisibilityForCheckboxEnableWhen = (refValue: string[], enableWhenValue: string, expectedVisible: boolean) => {
+    const assertDependentVisibilityForCheckboxEnableWhen = (
+      refValue: string[],
+      enableWhenValue: string,
+      expectedVisible: boolean,
+    ) => {
       const inputs: TestInput[] = [
         constructInput({
           name: 'trigger',
