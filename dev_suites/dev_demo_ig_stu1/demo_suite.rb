@@ -568,6 +568,14 @@ module DemoIG_STU1 # rubocop:disable Naming/ClassAndModuleCamelCase
         ]
       end
 
+      def checkbox_options
+        list_options.map { |option| { value: option[:value].to_s, label: option[:label] } }
+      end
+
+      def checkbox_default
+        checkbox_options[0][:value]
+      end
+
       test 'Conditional, optional, empty input test (Radio)' do
         input :get_type_radio, title: 'How to get Bundle (Radio)', type: 'radio', options: {
           list_options: list_options
@@ -596,6 +604,23 @@ module DemoIG_STU1 # rubocop:disable Naming/ClassAndModuleCamelCase
                                        enable_when: { input_name: 'get_type_select', value: 'summary_op' }
         input :patient_identifier_select, title: 'Patient ID (Select)', type: 'text', optional: true,
                                           enable_when: { input_name: 'get_type_select', value: 'summary_op' }
+        run { pass }
+      end
+
+      test 'Conditional, optional, empty input test (Checkbox)' do
+        input :get_type_checkbox, title: 'How to get Bundle (Checkbox)', type: 'checkbox',
+                                  default: checkbox_default, options: {
+                                    list_options: checkbox_options
+                                  }
+        input :bundle_copy_paste_checkbox, title: 'Paste JSON (Checkbox)', type: 'textarea', optional: true,
+                                           enable_when: { input_name: 'get_type_checkbox', value: '["copy_paste"]' }
+        input :bundle_url_checkbox, title: 'URL to FHIR Bundle (Checkbox)', type: 'text', optional: true,
+                                    enable_when: { input_name: 'get_type_checkbox', value: '["url"]' }
+        input :fhir_server_url_checkbox, title: 'FHIR Server URL (Checkbox)', type: 'text', optional: true,
+                                         enable_when: { input_name: 'get_type_checkbox', value: '["summary_op"]' }
+        input :patient_identifier_checkbox, title: 'Patient ID (Checkbox)', type: 'text', optional: true,
+                                            enable_when: { input_name: 'get_type_checkbox', value: '["summary_op"]' }
+
         run { pass }
       end
     end

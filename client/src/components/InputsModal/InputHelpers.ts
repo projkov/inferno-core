@@ -224,10 +224,6 @@ export const conditionalShowInput = (
   }
   const inputValue = inputsMap.get(enableWhen.input_name);
   if (inputValue === undefined) {
-    console.warn(
-      `Input "${input.name}" has enable_when referencing "${enableWhen.input_name}", ` +
-        `but that input was not found in the inputs map. The input will be hidden.`,
-    );
     return false;
   }
   return normalizeValue(inputValue) === normalizeValue(enableWhen.value);
